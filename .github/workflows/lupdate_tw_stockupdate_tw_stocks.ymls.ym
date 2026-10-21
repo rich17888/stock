@@ -1,0 +1,54 @@
+name: TWSE & TPEx Stock Fetcher + TG Notify
+on:
+  schedule:
+    - cron: '*/5 1-6 * * 1-5'
+  workflow_dispatch:
+jobs:
+  fetch_tw_stocks:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+      TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+      EVENT_NAME: ${{ github.event_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install yfinance requests
+      - run: |
+          python3 -c "
+          import json, os, re, requests, yfinance as yf
+          os.makedirs('data', exist_ok=True)
+          raw_symbols = ['NQ=F','2330.TW','2317.TW','2454.TW','2382.TW','2603.TW','8069.TWO','6488.TWO','5274.TWO','3293.TWO']
+          valid_stocks = [s for s in raw_symbols if s == 'NQ=F' or re.match(r'^[1-9]\d{3}\.(TW|TWO)$', s)]
+          out, alerts, summary = {}, [], []
+          for s in valid_stocks:
+              try:
+                  info = yf.Ticker(s).fast_info
+                  price = round(float(info.last_price), 2)
+                  prev = round(float(info.previous_close), 2)
+                  pct = round((price - prev) / prev * 100, 2) if prev else 0
+                  out[s] = {'price': price, 'prevClose': prev, 'changePct': pct}
+                  label = '小那 MINNQ' if s == 'NQ=F' else s
+                  summary.append(f'• {label}: {price} ({pct:+.2f}%)')
+                  if abs(pct) >= 3.0:
+                      alerts.append(f'🚨 {label}: 現價 {price} ({pct:+.2f}%)')
+              except Exception as e:
+                  pass
+          open('data/stocks.json', 'w').write(json.dumps(out, ensure_ascii=False, indent=2))
+          if os.getenv('TG_BOT_TOKEN') and os.getenv('TG_CHAT_ID'):
+              if os.getenv('EVENT_NAME') == 'workflow_dispatch' or alerts:
+                  header = '📢 【GitHub 雲端背景看盤已啟動】\n' if os.getenv('EVENT_NAME') == 'workflow_dispatch' else '📢 【台股上市櫃與小那異動通知】\n'
+                  body = '\n'.join(alerts if alerts else summary[:6])
+                  requests.post(f'https://api.telegram.org/bot{os.environ[\"TG_BOT_TOKEN\"]}/sendMessage',
+                                json={'chat_id': os.environ['TG_CHAT_ID'], 'text': header + body})
+          "
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/stocks.json
+          git diff --staged --quiet || git commit -m "chore: update TWSE/TPEx stocks"
+          git push
