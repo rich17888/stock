@@ -1,13 +1,13 @@
 {
   "NQ=F": {
-    "price": 29786.0,
+    "price": 29736.75,
     "prevClose": 29919.75,
-    "changePct": -0.45
+    "changePct": -0.61
   },
   "2330.TW": {
-    "price": 2430.0,
+    "price": 2405.0,
     "prevClose": 2405.0,
-    "changePct": 1.04
+    "changePct": 0.0
   },
   "2317.TW": {
     "price": 248.5,
@@ -15,38 +15,38 @@
     "changePct": -0.2
   },
   "2454.TW": {
-    "price": 4185.0,
+    "price": 4180.0,
     "prevClose": 4140.0,
-    "changePct": 1.09
+    "changePct": 0.97
   },
   "2382.TW": {
-    "price": 325.5,
+    "price": 324.5,
     "prevClose": 328.0,
-    "changePct": -0.76
+    "changePct": -1.07
   },
   "2603.TW": {
-    "price": 260.5,
+    "price": 261.0,
     "prevClose": 257.5,
-    "changePct": 1.17
+    "changePct": 1.36
   },
   "8069.TWO": {
-    "price": 156.5,
+    "price": 158.0,
     "prevClose": 155.5,
-    "changePct": 0.64
+    "changePct": 1.61
   },
   "6488.TWO": {
-    "price": 878.0,
+    "price": 865.0,
     "prevClose": 880.0,
-    "changePct": -0.23
+    "changePct": -1.7
   },
   "5274.TWO": {
-    "price": 16750.0,
+    "price": 16670.0,
     "prevClose": 16520.0,
-    "changePct": 1.39
+    "changePct": 0.91
   },
   "3293.TWO": {
-    "price": 780.0,
+    "price": 788.0,
     "prevClose": 782.0,
-    "changePct": -0.26
+    "changePct": 0.77
   }
 }
