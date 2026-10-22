@@ -4,21 +4,25 @@
 *{box-sizing:border-box;margin:0;padding:0}body{font-family:sans-serif;background:#0b0f19;color:#e2e8f0;padding-bottom:30px}
 .hdr{background:#0f172a;border-bottom:1px solid #1e293b;padding:12px 20px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px}
 .bdg{font-size:12px;padding:3px 10px;border-radius:99px;background:#064e3b;color:#34d399}.bdg-tg{background:#0c4a6e;color:#38bdf8}
-button,select,input{font-size:12px;border-radius:8px;border:1px solid #334155;background:#1e293b;color:#fff;padding:6px 12px;cursor:pointer}
+button,select,input{font-size:12px;border-radius:8px;border:1px solid #334155;background:#1e293b;color:#fff;padding:6px 10px;cursor:pointer}
 .btn-p{background:#4f46e5;border-color:#6366f1;font-weight:600}.btn-t{background:#0284c7;border-color:#0ea5e9;font-weight:600}
+.btn-del{background:rgba(244,63,94,.2);border-color:rgba(244,63,94,.4);color:#fda4af;padding:3px 8px;font-size:11px;font-weight:600}
+.btn-del:hover{background:rgba(244,63,94,.35)}.btn-sm{padding:3px 7px;font-size:11px;background:#1e293b;color:#cbd5e1}
 .wrap{max-width:1240px;margin:12px auto;padding:0 16px}.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
-.main{display:grid;grid-template-columns:350px 1fr;gap:16px;margin-top:12px}@media(max-width:900px){.main{grid-template-columns:1fr}}
+.main{display:grid;grid-template-columns:380px 1fr;gap:16px;margin-top:12px}@media(max-width:900px){.main{grid-template-columns:1fr}}
 .card{background:#111827;border:1px solid #1f2937;border-radius:12px;padding:14px;margin-bottom:12px}
 .row{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;background:#0b0f19;border:1px solid #1e293b;margin-bottom:6px;cursor:pointer}
 .row.act,.row:hover{border-color:#6366f1;background:#172036}.up{color:#fb7185}.dn{color:#34d399}
 .p-up{background:rgba(244,63,94,.2);color:#fda4af;padding:2px 6px;border-radius:4px;font-size:12px}.p-dn{background:rgba(16,185,129,.2);color:#6ee7b7;padding:2px 6px;border-radius:4px;font-size:12px}
 .mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-top:12px}.mbox{background:#0b0f19;border:1px solid #1e293b;border-radius:8px;padding:8px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:640px){.g2{grid-template-columns:1fr}}
+.al-item{display:flex;justify-content:space-between;align-items:center;gap:6px;background:#0b0f19;border:1px solid #1e293b;border-radius:8px;padding:7px 9px;margin-bottom:6px;font-size:12px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
 </style></head><body>
 <header class="hdr">
   <div><h1 style="font-size:18px;color:#fff">📈 台股上市櫃 ＋ 美股小那 (MINNQ) 即時看盤與 TG 通知系統</h1>
-  <div style="display:flex;gap:8px;margin-top:4px"><span class="bdg">● 即時連線就緒</span><span class="bdg bdg-tg">✈️ TG 已綁定 (@My_rich17888_bot)</span></div></div>
-  <div style="display:flex;gap:8px"><button id="bCol">台股紅漲綠跌</button><button id="bRef" class="btn-p">🔄 立即更新</button><button id="bTg" class="btn-t">✈️ 推播現價至 TG</button></div>
+  <div style="display:flex;gap:8px;margin-top:4px"><span class="bdg">● 即時連線就緒</span><span id="tgBdg" class="bdg bdg-tg">🔒 TG 憑證：本機安全儲存 (不公開)</span></div></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button id="bCol">台股紅漲綠跌</button><button id="bRef" class="btn-p">🔄 立即更新</button><button id="bTg" class="btn-t">✈️ 推播現價至 TG</button><button id="bCfg" style="background:#334155">⚙️ 設定 TG Token (僅存本機)</button></div>
 </header>
 <div class="wrap"><div id="strip" class="strip"></div>
 <div class="main">
@@ -27,11 +31,33 @@ button,select,input{font-size:12px;border-radius:8px;border:1px solid #334155;ba
       <div style="display:flex;justify-content:space-between;margin-bottom:8px"><strong>上市櫃自選股 (排除權證/CB)</strong><span id="tm" style="font-size:11px;color:#94a3b8">--:--:--</span></div>
       <div style="display:flex;gap:6px;margin-bottom:8px"><input id="inAdd" placeholder="輸入4碼台股或 MINNQ" style="flex:1"><button id="bAdd" class="btn-p">+ 新增</button></div>
       <div style="display:flex;gap:6px;margin-bottom:8px"><button class="fb btn-p" data-f="ALL">全部</button><button class="fb" data-f="TWSE">上市</button><button class="fb" data-f="TPEX">上櫃</button><button class="fb" data-f="US">小那</button></div>
-      <div id="wlist" style="max-height:420px;overflow-y:auto"></div>
+      <div id="wlist" style="max-height:380px;overflow-y:auto"></div>
     </div>
-    <div class="card"><strong>🔔 到價自動推播 TG (<span id="alSym">3406</span>)</strong>
-      <div style="display:flex;gap:6px;margin-top:8px"><select id="alC"><option value="gte">股價 ≥</option><option value="lte">股價 ≤</option></select><input id="alV" type="number" placeholder="目標價" style="width:90px"><button id="bAl" class="btn-t">+ 監控</button></div>
-      <div id="alList" style="font-size:12px;margin-top:8px;color:#cbd5e1"></div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <strong>🔔 到價 / 成交量 TG 監控 (<span id="alSym">3406</span>)</strong>
+        <button id="bClearAl" class="btn-del" title="一鍵取消全部監控">🗑️ 全部取消</button>
+      </div>
+      <div style="display:flex;gap:5px;margin-bottom:8px">
+        <select id="alC" style="flex:1">
+          <option value="volGte">📊 總成交量突破 ≥ (張/口)</option>
+          <option value="tickVol">🔥 單筆爆量突破 ≥ (張/口)</option>
+          <option value="gte">📈 股價高於 ≥ (元)</option>
+          <option value="lte">📉 股價低於 ≤ (元)</option>
+          <option value="pctGte">🚀 漲幅超過 ≥ (%)</option>
+          <option value="pctLte">🔻 跌幅超過 ≤ (-%)</option>
+        </select>
+        <input id="alV" type="number" step="any" placeholder="目標數值" style="width:92px">
+        <button id="bAl" class="btn-t">+ 新增監控</button>
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;align-items:center">
+        <span style="font-size:11px;color:#94a3b8">成交量快設：</span>
+        <button class="btn-sm vpre" data-v="100">+100張爆量</button>
+        <button class="btn-sm vpre" data-v="500">+500張爆量</button>
+        <button class="btn-sm vpre" data-v="1000">+1000張爆量</button>
+        <button class="btn-sm" id="bTick50" style="color:#fda4af">單筆≥50張</button>
+      </div>
+      <div id="alList" style="max-height:220px;overflow-y:auto"></div>
     </div>
   </div>
   <div>
@@ -45,7 +71,7 @@ button,select,input{font-size:12px;border-radius:8px;border:1px solid #334155;ba
         <div class="mbox"><div style="font-size:11px;color:#94a3b8">最高</div><strong id="mH">1140</strong></div>
         <div class="mbox"><div style="font-size:11px;color:#94a3b8">最低</div><strong id="mL">1085</strong></div>
         <div class="mbox"><div style="font-size:11px;color:#94a3b8">昨收</div><strong id="mP">1040</strong></div>
-        <div class="mbox"><div style="font-size:11px;color:#94a3b8">成交量</div><strong id="mV">2,608 張</strong></div>
+        <div class="mbox"><div style="font-size:11px;color:#94a3b8">總成交量 (單筆)</div><strong id="mV">2,608 張</strong></div>
       </div>
     </div>
     <div class="card"><strong>當日即時走勢圖</strong><canvas id="cv" width="720" height="210" style="width:100%;height:210px;background:#0b0f19;border-radius:8px;margin-top:8px"></canvas></div>
@@ -58,57 +84,95 @@ button,select,input{font-size:12px;border-radius:8px;border:1px solid #334155;ba
     </div>
   </div>
 </div></div>
+<div id="cfgModal" class="modal">
+  <div class="card" style="max-width:440px;width:100%;background:#0f172a">
+    <h3 style="margin-bottom:8px">🔒 本機設定 Telegram 通知憑證 (不公開於程式碼)</h3>
+    <p style="font-size:12px;color:#94a3b8;margin-bottom:10px">你輸入的 Token 與 Chat ID 只會儲存在你目前瀏覽器的 localStorage 中，不會上傳或公開在 GitHub 程式碼內。</p>
+    <div style="margin-bottom:8px"><label style="font-size:12px;display:block;margin-bottom:4px">Telegram Bot Token</label><input id="inTk" type="password" placeholder="貼上你的新 Bot Token" style="width:100%"></div>
+    <div style="margin-bottom:12px"><label style="font-size:12px;display:block;margin-bottom:4px">Telegram Chat ID (純數字)</label><input id="inId" type="text" placeholder="貼上你的純數字 Chat ID" style="width:100%"></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px"><button id="bCloseCfg">關閉</button><button id="bSaveCfg" class="btn-t">儲存於本機瀏覽器</button></div>
+  </div>
+</div>
 <script>
 const S=[
-  {c:'MINNQ',s:'NQ=F',n:'小那 MINNQ',b:'US',p:20485.5,o:20390,h:20540.25,l:20365.75,pc:20380,v:185420,u:'口',hs:[20380,20410,20435,20455,20448,20470,20490,20485.5]},
-  {c:'3406',s:'3406.TW',n:'玉晶光',b:'TWSE',p:1140,o:1095,h:1140,l:1085,pc:1040,v:2608,u:'張',hs:[1040,1095,1105,1115,1125,1130,1135,1140]},
-  {c:'6150',s:'6150.TWO',n:'撼訊',b:'TPEX',p:70.5,o:72.3,h:74.2,l:70.3,pc:72.3,v:681,u:'張',hs:[72.3,74.2,73.1,72.0,71.5,70.8,70.3,70.5]},
-  {c:'4958',s:'4958.TW',n:'臻鼎-KY',b:'TWSE',p:578,o:555,h:582,l:552,pc:547,v:12450,u:'張',hs:[547,555,562,568,572,575,582,578]},
-  {c:'2330',s:'2330.TW',n:'台積電',b:'TWSE',p:1085,o:1075,h:1095,l:1070,pc:1065,v:42680,u:'張',hs:[1065,1075,1080,1085,1090,1082,1088,1085]},
-  {c:'2454',s:'2454.TW',n:'聯發科',b:'TWSE',p:1315,o:1330,h:1335,l:1305,pc:1325,v:8420,u:'張',hs:[1325,1330,1322,1315,1310,1312,1318,1315]},
-  {c:'2382',s:'2382.TW',n:'廣達',b:'TWSE',p:312,o:306.5,h:315,l:306,pc:305,v:45120,u:'張',hs:[305,308,310,312,314,313,311,312]},
-  {c:'8069',s:'8069.TWO',n:'元太',b:'TPEX',p:286.5,o:281,h:289,l:280,pc:279.5,v:16420,u:'張',hs:[279.5,282,284,285,287,286,287,286.5]},
-  {c:'6488',s:'6488.TWO',n:'環球晶',b:'TPEX',p:498,o:492,h:503,l:490,pc:490,v:5280,u:'張',hs:[490,493,496,499,501,498,499,498]},
-  {c:'5274',s:'5274.TWO',n:'信驊',b:'TPEX',p:4380,o:4310,h:4415,l:4295,pc:4290,v:690,u:'張',hs:[4290,4320,4350,4370,4395,4385,4390,4380]}
+  {c:'MINNQ',s:'NQ=F',n:'小那 MINNQ',b:'US',p:20485.5,o:20390,h:20540.25,l:20365.75,pc:20380,v:185420,tv:32,u:'口',hs:[20380,20410,20435,20455,20448,20470,20490,20485.5]},
+  {c:'3406',s:'3406.TW',n:'玉晶光',b:'TWSE',p:1140,o:1095,h:1140,l:1085,pc:1040,v:2608,tv:18,u:'張',hs:[1040,1095,1105,1115,1125,1130,1135,1140]},
+  {c:'6150',s:'6150.TWO',n:'撼訊',b:'TPEX',p:70.5,o:72.3,h:74.2,l:70.3,pc:72.3,v:681,tv:9,u:'張',hs:[72.3,74.2,73.1,72.0,71.5,70.8,70.3,70.5]},
+  {c:'4958',s:'4958.TW',n:'臻鼎-KY',b:'TWSE',p:578,o:555,h:582,l:552,pc:547,v:12450,tv:24,u:'張',hs:[547,555,562,568,572,575,582,578]},
+  {c:'2330',s:'2330.TW',n:'台積電',b:'TWSE',p:1085,o:1075,h:1095,l:1070,pc:1065,v:42680,tv:35,u:'張',hs:[1065,1075,1080,1085,1090,1082,1088,1085]},
+  {c:'2454',s:'2454.TW',n:'聯發科',b:'TWSE',p:1315,o:1330,h:1335,l:1305,pc:1325,v:8420,tv:14,u:'張',hs:[1325,1330,1322,1315,1310,1312,1318,1315]},
+  {c:'2382',s:'2382.TW',n:'廣達',b:'TWSE',p:312,o:306.5,h:315,l:306,pc:305,v:45120,tv:28,u:'張',hs:[305,308,310,312,314,313,311,312]},
+  {c:'8069',s:'8069.TWO',n:'元太',b:'TPEX',p:286.5,o:281,h:289,l:280,pc:279.5,v:16420,tv:19,u:'張',hs:[279.5,282,284,285,287,286,287,286.5]},
+  {c:'6488',s:'6488.TWO',n:'環球晶',b:'TPEX',p:498,o:492,h:503,l:490,pc:490,v:5280,tv:11,u:'張',hs:[490,493,496,499,501,498,499,498]},
+  {c:'5274',s:'5274.TWO',n:'信驊',b:'TPEX',p:4380,o:4310,h:4415,l:4295,pc:4290,v:690,tv:5,u:'張',hs:[4290,4320,4350,4370,4395,4385,4390,4380]}
 ];
-let sel='3406.TW',flt='ALL',tw=true,als=[{c:'3406',n:'玉晶光',cd:'gte',v:1150,ok:false}];
-const TK='8877122674:AAGg_SuoNWT_--XghSWwUGvTKHsj8Oz9jTg',ID='925287854';
+let sel='3406.TW',flt='ALL',tw=true,TK='',ID='';
+try{TK=localStorage.getItem('tw_tg_tk')||'';ID=localStorage.getItem('tw_tg_id')||'';}catch(e){}
+let als=[
+  {id:1,c:'3406',n:'玉晶光',cd:'volGte',v:3000,u:'張',ps:false,ok:false},
+  {id:2,c:'3406',n:'玉晶光',cd:'gte',v:1150,u:'元',ps:false,ok:false}
+];
+try{const sv=localStorage.getItem('tw_als_v2');if(sv)als=JSON.parse(sv);}catch(e){}
+function saveAl(){try{localStorage.setItem('tw_als_v2',JSON.stringify(als));}catch(e){}}
 const fm=n=>Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-function tg(m){const u='ht'+'tps://api.tele'+'gram.org/bot'+TK+'/sendMessage?chat_id='+ID+'&text='+encodeURIComponent(m);fetch(u).catch(()=>{new Image().src=u});}
+function cLbl(cd){return cd==='volGte'?'📊總量≥':cd==='tickVol'?'🔥單筆量≥':cd==='gte'?'📈股價≥':cd==='lte'?'📉股價≤':cd==='pctGte'?'🚀漲幅≥':'🔻跌幅≤-';}
+function tg(m,manual){
+  if(!TK||!ID){if(manual)document.getElementById('cfgModal').style.display='flex';return;}
+  const u='ht'+'tps://api.tele'+'gram.org/bot'+TK+'/sendMessage?chat_id='+ID+'&text='+encodeURIComponent(m);
+  fetch(u).catch(()=>{new Image().src=u});
+}
 async function sync(){try{const r=await fetch('./data/stocks.json?_='+Date.now());if(r.ok){const d=await r.json();S.forEach(x=>{const k=d[x.s]||d[x.c];if(k&&k.price){x.p=Number(k.price);if(k.prevClose)x.pc=Number(k.prevClose)}});}}catch(e){}}
+window.delAl=function(id){als=als.filter(x=>x.id!==id);saveAl();draw();};
+window.togAl=function(id){const a=als.find(x=>x.id===id);if(a){if(a.ok){a.ok=false;a.ps=false;}else{a.ps=!a.ps;}saveAl();draw();}};
 function draw(){
+  document.getElementById('tgBdg').textContent=TK&&ID?'✈️ TG 已於本機綁定 (安全模式)':'🔒 TG 憑證：點右上設定 (僅存本機)';
   const nq=S[0],nc=nq.p-nq.pc,np=nc/nq.pc*100;
   document.getElementById('strip').innerHTML=`<div class="card" style="cursor:pointer;margin:0" onclick="sel='NQ=F';draw()"><div style="font-size:12px;color:#fcd34d">美股小那 MINNQ (NQ=F)</div><strong style="font-size:18px;font-family:monospace">${fm(nq.p)} (${nc>=0?'+':''}${np.toFixed(2)}%)</strong></div><div class="card" style="margin:0"><div style="font-size:12px;color:#94a3b8">上市普通股 (TWSE)</div><strong style="font-size:18px;color:#a5b4fc">${S.filter(x=>x.b==='TWSE').length} 檔追蹤</strong></div><div class="card" style="margin:0"><div style="font-size:12px;color:#94a3b8">上櫃普通股 (TPEx)</div><strong style="font-size:18px;color:#67e8f9">${S.filter(x=>x.b==='TPEX').length} 檔追蹤</strong></div>`;
   document.getElementById('wlist').innerHTML=S.filter(x=>flt==='ALL'||x.b===flt).map(x=>{
     const df=x.p-x.pc,pt=df/x.pc*100,up=(df>=0&&tw)||(df<0&&!tw);
-    return `<div class="row ${x.s===sel?'act':''}" onclick="sel='${x.s}';document.getElementById('cCost').value=${x.pc};draw()"><div><strong>${x.n}</strong> <span style="color:#94a3b8">${x.c}</span><div style="font-size:11px;color:#64748b">量 ${x.v.toLocaleString()} ${x.u}</div></div><div style="text-align:right;font-family:monospace"><div>${fm(x.p)}</div><span class="${up?'p-up':'p-dn'}">${df>=0?'+':''}${df.toFixed(2)} (${df>=0?'+':''}${pt.toFixed(2)}%)</span></div></div>`;
+    return `<div class="row ${x.s===sel?'act':''}" onclick="sel='${x.s}';document.getElementById('cCost').value=${x.pc};draw()"><div><strong>${x.n}</strong> <span style="color:#94a3b8">${x.c}</span><div style="font-size:11px;color:#64748b">總量 ${x.v.toLocaleString()} ${x.u} (單筆 ${x.tv})</div></div><div style="text-align:right;font-family:monospace"><div>${fm(x.p)}</div><span class="${up?'p-up':'p-dn'}">${df>=0?'+':''}${df.toFixed(2)} (${df>=0?'+':''}${pt.toFixed(2)}%)</span></div></div>`;
   }).join('');
   const c=S.find(x=>x.s===sel)||S[1],df=c.p-c.pc,pt=df/c.pc*100,up=(df>=0&&tw)||(df<0&&!tw);
   document.getElementById('dTag').textContent=c.b==='TWSE'?'上市 TWSE':c.b==='TPEX'?'上櫃 TPEx':'美期 MINNQ';
   document.getElementById('dTit').textContent=`${c.n} (${c.c})`;
   document.getElementById('dP').textContent=fm(c.p);document.getElementById('dP').className=up?'up':'dn';
   document.getElementById('dC').textContent=`${df>=0?'+':''}${df.toFixed(2)} (${df>=0?'+':''}${pt.toFixed(2)}%)`;document.getElementById('dC').className=up?'p-up':'p-dn';
-  document.getElementById('mO').textContent=fm(c.o);document.getElementById('mH').textContent=fm(c.h);document.getElementById('mL').textContent=fm(c.l);document.getElementById('mP').textContent=fm(c.pc);document.getElementById('mV').textContent=`${c.v.toLocaleString()} ${c.u}`;document.getElementById('alSym').textContent=c.c;
+  document.getElementById('mO').textContent=fm(c.o);document.getElementById('mH').textContent=fm(c.h);document.getElementById('mL').textContent=fm(c.l);document.getElementById('mP').textContent=fm(c.pc);document.getElementById('mV').textContent=`${c.v.toLocaleString()} ${c.u} (單筆${c.tv})`;document.getElementById('alSym').textContent=`${c.n} ${c.c}`;
   const st=c.p>=1000?5:c.p>=500?1:0.5;let b='',a='';
   for(let i=0;i<5;i++){b+=`<div style="display:flex;justify-content:space-between;padding:3px 0"><span>${35+i*12}張</span><span class="up">${fm(c.p-i*st)}</span></div>`;a+=`<div style="display:flex;justify-content:space-between;padding:3px 0"><span class="dn">${fm(c.p+(i+1)*st)}</span><span>${28+i*15}張</span></div>`;}
   document.getElementById('ob').innerHTML=`<div>${b}</div><div>${a}</div>`;
   const cs=parseFloat(document.getElementById('cCost').value)||c.pc,sh=parseFloat(document.getElementById('cSh').value)||1000,mv=c.p*sh,gc=cs*sh,fe=Math.round(gc*0.001425+mv*0.004425),nt=Math.round(mv-gc-fe);
   document.getElementById('cRes').innerHTML=`市值: ${Math.round(mv).toLocaleString()} 元 ｜ 稅費: ${fe.toLocaleString()} 元<br>淨損益: <strong class="${nt>=0?'up':'dn'}">${nt>=0?'+':''}${nt.toLocaleString()} 元</strong>`;
-  document.getElementById('alList').innerHTML=als.map(x=>`<div>${x.n}(${x.c}) ${x.cd==='gte'?'≥':'≤'} ${x.v} ${x.ok?'✅已推播':'⏳監控中'}</div>`).join('');
+  document.getElementById('alList').innerHTML=als.length?als.map(x=>`<div class="al-item" style="${x.ps?'opacity:.55':''}"><div><strong>${x.n}(${x.c})</strong> ${cLbl(x.cd)} ${Number(x.v).toLocaleString()}${x.cd==='volGte'||x.cd==='tickVol'?x.u||'張':x.cd.startsWith('pct')?'%':'元'} <span style="color:${x.ok?'#fcd34d':x.ps?'#94a3b8':'#34d399'}">${x.ok?'✅已推播':x.ps?'⏸暫停':'⏳監控中'}</span></div><div style="display:flex;gap:4px"><button class="btn-sm" onclick="togAl(${x.id})">${x.ok?'🔄重啟':x.ps?'▶恢復':'⏸暫停'}</button><button class="btn-del" onclick="delAl(${x.id})">✕ 取消監控</button></div></div>`).join(''):'<div style="color:#64748b;text-align:center;padding:10px">目前無監控條件，請由上方新增</div>';
   const cv=document.getElementById('cv'),cx=cv.getContext('2d');cx.clearRect(0,0,cv.width,cv.height);
   const mn=Math.min(...c.hs)*0.998,mx=Math.max(...c.hs)*1.002;cx.strokeStyle=up?'#f43f5e':'#10b981';cx.lineWidth=2.5;cx.beginPath();
   c.hs.forEach((v,i)=>{const x=20+i*(cv.width-40)/(c.hs.length-1||1),y=cv.height-20-((v-mn)/(mx-mn||1))*(cv.height-40);i?cx.lineTo(x,y):cx.moveTo(x,y)});cx.stroke();
 }
 setInterval(()=>{
-  S.forEach(x=>{x.p=Math.round((x.p+(Math.random()-0.492)*x.p*0.003)*100)/100;if(x.p>x.h)x.h=x.p;if(x.p<x.l)x.l=x.p;x.v+=9;x.hs.push(x.p);if(x.hs.length>20)x.hs.shift();
-  als.forEach(a=>{if(!a.ok&&a.c===x.c&&((a.cd==='gte'&&x.p>=a.v)||(a.cd==='lte'&&x.p<=a.v))){a.ok=true;tg('🚨【到價通知】'+x.n+'('+x.c+') 現價 '+fm(x.p));}});});
+  S.forEach(x=>{
+    x.p=Math.round((x.p+(Math.random()-0.492)*x.p*0.003)*100)/100;if(x.p>x.h)x.h=x.p;if(x.p<x.l)x.l=x.p;
+    const tv=Math.floor(Math.random()*58)+3;x.tv=tv;x.v+=tv;x.hs.push(x.p);if(x.hs.length>20)x.hs.shift();
+    const pt=(x.p-x.pc)/x.pc*100;
+    als.forEach(a=>{
+      if(!a.ok&&!a.ps&&a.c===x.c){
+        const hit=(a.cd==='volGte'&&x.v>=a.v)||(a.cd==='tickVol'&&x.tv>=a.v)||(a.cd==='gte'&&x.p>=a.v)||(a.cd==='lte'&&x.p<=a.v)||(a.cd==='pctGte'&&pt>=a.v)||(a.cd==='pctLte'&&pt<=-Math.abs(a.v));
+        if(hit){a.ok=true;saveAl();tg('🚨【台股監控觸發】'+x.n+'('+x.c+') '+cLbl(a.cd)+a.v+'｜現價 '+fm(x.p)+'｜總量 '+x.v.toLocaleString()+x.u+'(單筆'+x.tv+x.u+')',false);}
+      }
+    });
+  });
   document.getElementById('tm').textContent=new Date().toTimeString().split(' ')[0];draw();
 },3000);
 document.getElementById('bCol').onclick=()=>{tw=!tw;draw()};
 document.getElementById('bRef').onclick=()=>{sync();draw()};
-document.getElementById('bTg').onclick=()=>{const c=S.find(x=>x.s===sel)||S[1];tg('📊【即時報價】'+c.n+'('+c.c+') 現價 '+fm(c.p)+' 元');alert('✈️ 已發送 Telegram 報價通知！')};
-document.getElementById('bAdd').onclick=()=>{const v=document.getElementById('inAdd').value.trim().toUpperCase();if(!/^[1-9]\d{3}$/.test(v)&&v!=='MINNQ')return alert('僅收錄4碼台股普通股或MINNQ(排除權證與CB)');if(!S.find(x=>x.c===v))S.unshift({c:v,s:v+'.TW',n:'台股 '+v,b:'TWSE',p:120,o:118,h:122,l:117,pc:118,v:2500,u:'張',hs:[118,119,120]});sel=v+'.TW';draw()};
-document.getElementById('bAl').onclick=()=>{const c=S.find(x=>x.s===sel)||S[1],v=parseFloat(document.getElementById('alV').value);if(v){als.unshift({c:c.c,n:c.n,cd:document.getElementById('alC').value,v,ok:false});draw()}};
+document.getElementById('bTg').onclick=()=>{const c=S.find(x=>x.s===sel)||S[1];if(!TK||!ID){document.getElementById('cfgModal').style.display='flex';return;}tg('📊【即時報價】'+c.n+'('+c.c+') 現價 '+fm(c.p)+' 元｜總量 '+c.v.toLocaleString()+c.u,true);alert('✈️ 已發送 Telegram 報價通知！')};
+document.getElementById('bCfg').onclick=()=>{document.getElementById('inTk').value=TK;document.getElementById('inId').value=ID;document.getElementById('cfgModal').style.display='flex'};
+document.getElementById('bCloseCfg').onclick=()=>{document.getElementById('cfgModal').style.display='none'};
+document.getElementById('bSaveCfg').onclick=()=>{TK=document.getElementById('inTk').value.trim();ID=document.getElementById('inId').value.trim();try{localStorage.setItem('tw_tg_tk',TK);localStorage.setItem('tw_tg_id',ID);}catch(e){}document.getElementById('cfgModal').style.display='none';draw();alert('✅ 已將 TG 憑證安全儲存於本機瀏覽器！')};
+document.getElementById('bAdd').onclick=()=>{const v=document.getElementById('inAdd').value.trim().toUpperCase();if(!/^[1-9]\d{3}$/.test(v)&&v!=='MINNQ')return alert('僅收錄4碼台股普通股或MINNQ(排除權證與CB)');if(!S.find(x=>x.c===v))S.unshift({c:v,s:v+'.TW',n:'台股 '+v,b:'TWSE',p:120,o:118,h:122,l:117,pc:118,v:2500,tv:12,u:'張',hs:[118,119,120]});sel=v+'.TW';draw()};
+document.getElementById('bAl').onclick=()=>{const c=S.find(x=>x.s===sel)||S[1],v=parseFloat(document.getElementById('alV').value);if(v>0){als.unshift({id:Date.now(),c:c.c,n:c.n,cd:document.getElementById('alC').value,v,u:c.u,ps:false,ok:false});saveAl();document.getElementById('alV').value='';draw()}};
+document.getElementById('bClearAl').onclick=()=>{als=[];saveAl();draw()};
+document.querySelectorAll('.vpre').forEach(b=>b.onclick=()=>{const c=S.find(x=>x.s===sel)||S[1],tv=c.v+Number(b.dataset.v);als.unshift({id:Date.now(),c:c.c,n:c.n,cd:'volGte',v:tv,u:c.u,ps:false,ok:false});saveAl();draw()});
+document.getElementById('bTick50').onclick=()=>{const c=S.find(x=>x.s===sel)||S[1];als.unshift({id:Date.now(),c:c.c,n:c.n,cd:'tickVol',v:50,u:c.u,ps:false,ok:false});saveAl();draw()};
 document.querySelectorAll('.fb').forEach(b=>b.onclick=()=>{flt=b.dataset.f;document.querySelectorAll('.fb').forEach(x=>x.className='fb');b.className='fb btn-p';draw()});
 document.getElementById('cCost').oninput=draw;document.getElementById('cSh').oninput=draw;
 sync();draw();
